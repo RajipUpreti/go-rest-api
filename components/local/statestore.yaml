@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: postgres
+spec:
+  type: state.postgresql
+  version: v2
+  metadata:
+    # Connection string
+    - name: connectionString
+
+      value: "host=localhost user=postgres password=postgres  port=5432  database=postgres"
+    - name: timeoutInSeconds
+      value: "20"

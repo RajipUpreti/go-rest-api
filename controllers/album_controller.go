@@ -3,12 +3,25 @@ package controllers
 import (
 	"go-rest-api/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetAlbums(c *gin.Context) {
-	albums := models.GetAlbums()
+	artist := c.Query("artist")
+	pageStr := c.DefaultQuery("page", "1")
+	limitStr := c.DefaultQuery("limit", "10")
+
+	page, err1 := strconv.Atoi(pageStr)
+	limit, err2 := strconv.Atoi(limitStr)
+
+	if err1 != nil || err2 != nil || page <= 0 || limit <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid pagination parameters"})
+		return
+	}
+
+	albums := models.GetAlbumsPaginatedFiltered(artist, page, limit)
 	c.JSON(http.StatusOK, albums)
 }
 
@@ -48,3 +61,5 @@ func CreateAlbum(c *gin.Context) {
 	addedAlbum := models.AddAlbum(newAlbum)
 	c.JSON(http.StatusCreated, addedAlbum)
 }
+
+

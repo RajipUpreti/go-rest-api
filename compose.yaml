@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17-alpine 
+    platform: 	linux/arm64/v8
+    restart: always
+    environment:
+      POSTGRES_DB: postgres # 🐘 Replace with your desired database name
+      POSTGRES_USER: postgres     # 👤 Replace with your desired username
+      POSTGRES_PASSWORD: postgres # 🔑 Replace with a strong password
+    volumes:
+      - db_data:/var/lib/postgresql/data # This will persist your database data
+    ports:
+      - "5432:5432" 
+
+volumes:
+  db_data:

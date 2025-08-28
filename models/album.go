@@ -1,46 +1,65 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"go-rest-api/config"
+
+	"github.com/google/uuid"
+)
 
 type Album struct {
-	ID     string  `json:"id"`                            // must be present
-	Title  string  `json:"title" binding:"required"`      // must be present
-	Artist string  `json:"artist" binding:"required"`     // must be present
-	Price  float64 `json:"price" binding:"required,gt=0"` // must be > 0
+	ID     string  `json:"id" gorm:"primaryKey"`
+	Title  string  `json:"title" binding:"required"`
+	Artist string  `json:"artist" binding:"required"`
+	Price  float64 `json:"price" binding:"required,gt=0"`
 }
 
-// Simulated in-memory data
-var albums = []Album{
-	{ID: uuid.New().String(), Title: "The Go Gospels", Artist: "Go Lang", Price: 9.99},
-	{ID: uuid.New().String(), Title: "Gin and JSON", Artist: "Gin Gonic", Price: 12.50},
-	{ID: uuid.New().String(), Title: "REST Rhapsody", Artist: "APIson", Price: 8.75},
+func SeedAlbumsIfEmpty() {
+	var count int64
+	config.DB.Model(&Album{}).Count(&count)
+	if count == 0 {
+		albums := []Album{
+			{ID: uuid.New().String(), Title: "Initial Track", Artist: "System", Price: 10.0},
+			{ID: uuid.New().String(), Title: "Reload Safe", Artist: "GORM", Price: 20.0},
+		}
+		config.DB.Create(&albums)
+	}
 }
 
 func GetAlbums() []Album {
+	var albums []Album
+	config.DB.Find(&albums)
 	return albums
 }
 
 func GetAlbumByID(id string) (*Album, bool) {
-	for _, a := range albums {
-		if a.ID == id {
-			return &a, true
-		}
+	var album Album
+	result := config.DB.First(&album, id)
+	if result.Error != nil {
+		return nil, false
 	}
-	return nil, false
+	return &album, true
 }
 
 func DeleteAlbumByID(id string) bool {
-	for i, a := range albums {
-		if a.ID == id {
-			albums = append(albums[:i], albums[i+1:]...)
-			return true
-		}
-	}
-	return false
+	var album Album
+	result := config.DB.Delete(&album, id)
+	return result.RowsAffected > 0
 }
 
 func AddAlbum(newAlbum Album) Album {
-	newAlbum.ID = uuid.New().String() // assign UUID here
-	albums = append(albums, newAlbum)
+	config.DB.Create(&newAlbum)
 	return newAlbum
+}
+func GetAlbumsPaginatedFiltered(artist string, page, limit int) []Album {
+	var albums []Album
+	db := config.DB
+
+	if artist != "" {
+		db = db.Where("artist LIKE ?", "%"+artist+"%")
+	}
+
+	offset := (page - 1) * limit
+	db.Limit(limit).Offset(offset).Find(&albums)
+
+	return albums
 }
