@@ -5,10 +5,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 )
 
 func GetAlbums(c *gin.Context) {
+	slog.Info("GetAlbums route hit")
 	artist := c.Query("artist")
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
@@ -26,6 +29,7 @@ func GetAlbums(c *gin.Context) {
 }
 
 func GetAlbumByID(c *gin.Context) {
+	slog.Info("GetAlbumByID route hit")
 	id := c.Param("id")
 	album, found := models.GetAlbumByID(id)
 
@@ -38,6 +42,7 @@ func GetAlbumByID(c *gin.Context) {
 }
 
 func DeleteAlbumByID(c *gin.Context) {
+	slog.Info("DeleteAlbumByID route hit")
 	id := c.Param("id")
 
 	deleted := models.DeleteAlbumByID(id)
@@ -47,9 +52,10 @@ func DeleteAlbumByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "album deleted"})
-}
+}	
 
 func CreateAlbum(c *gin.Context) {
+	slog.Info("CreateAlbum route hit")
 	var newAlbum models.Album
 
 	// Bind JSON body into newAlbum struct
@@ -61,5 +67,3 @@ func CreateAlbum(c *gin.Context) {
 	addedAlbum := models.AddAlbum(newAlbum)
 	c.JSON(http.StatusCreated, addedAlbum)
 }
-
-

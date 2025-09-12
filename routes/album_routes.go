@@ -6,11 +6,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterAlbumRoutes(r *gin.Engine) {
+func AlbumRoutes(r *gin.Engine) { 
 	r.GET("/albums", controllers.GetAlbums)
 	r.GET("/albums/:id", controllers.GetAlbumByID)
 	r.DELETE("/albums/:id", controllers.DeleteAlbumByID)
 	r.POST("/albums", controllers.CreateAlbum)
-	r.POST("/dapr/albums", controllers.SaveAlbumToDaprState)
+	// r.POST("/dapr/albums", controllers.SaveAlbumToDaprState)
 
+}
+func HealthCheckRoutes(r *gin.Engine) {
+	r.GET("/health", controllers.HealthCheck)
 }

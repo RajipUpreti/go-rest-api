@@ -14,6 +14,7 @@ func main() {
 
 	// models.SeedAlbumsIfEmpty() // ✅ run once if DB is empty
 
-	routes.RegisterAlbumRoutes(r)
+	routes.AlbumRoutes(r)
+	routes.HealthCheckRoutes(r)
 	r.Run()
 }
