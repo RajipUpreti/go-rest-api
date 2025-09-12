@@ -1,8 +1,8 @@
 package main
 
 import (
-	"go-rest-api/config"
-	"go-rest-api/routes"
+	"albums-rest-api/config"
+	"albums-rest-api/routes"
 
 	"github.com/gin-gonic/gin"
 )

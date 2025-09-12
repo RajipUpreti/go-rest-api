@@ -1,4 +1,4 @@
-module go-rest-api
+module albums-rest-api
 
 go 1.25.0
 

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"go-rest-api/models"
+	"albums-rest-api/models"
 	"net/http"
 	"strconv"
 
@@ -52,7 +52,7 @@ func DeleteAlbumByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "album deleted"})
-}	
+}
 
 func CreateAlbum(c *gin.Context) {
 	slog.Info("CreateAlbum route hit")

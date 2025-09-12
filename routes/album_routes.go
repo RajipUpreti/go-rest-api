@@ -1,12 +1,12 @@
 package routes
 
 import (
-	"go-rest-api/controllers"
+	"albums-rest-api/controllers"
 
 	"github.com/gin-gonic/gin"
 )
 
-func AlbumRoutes(r *gin.Engine) { 
+func AlbumRoutes(r *gin.Engine) {
 	r.GET("/albums", controllers.GetAlbums)
 	r.GET("/albums/:id", controllers.GetAlbumByID)
 	r.DELETE("/albums/:id", controllers.DeleteAlbumByID)

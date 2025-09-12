@@ -1,7 +1,7 @@
 package models
 
 import (
-	"go-rest-api/config"
+	"albums-rest-api/config"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
