@@ -1,0 +1,38 @@
+# Binaries for the current project
+*.exe
+*.dll
+*.so
+*.dylib
+*.wasm
+
+# Go build cache
+.cache/go-build/
+
+# Go module cache
+pkg/mod/
+
+# Test output
+testdata/
+
+# Log files
+*.log
+
+# Editor/IDE specific files
+.idea/
+.vscode/
+*.swp
+*.bak
+*~
+.DS_Store
+
+# Environment variables
+.env
+.env.*
+
+# Vendor directory (if not using Go modules or if explicitly ignored)
+# vendor/
+
+# Temporary files or build artifacts
+tmp/
+dist/
+build/

@@ -1,0 +1,130 @@
+
+volumes:
+  db_data_1: {}  # Named volume to persist Postgres data across container restarts
+  kong_state_vol: {}  # Named volume to persist Kong prefix data across container restarts
+  kong_tmp_vol: {}  # Named volume to persist Kong tmp data across container restarts
+networks:
+  albums-network:
+    driver: bridge
+x-kong-config:
+  &kong-env
+  KONG_DATABASE: ${KONG_DATABASE:-postgres}
+  KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+  KONG_PG_HOST: db
+  KONG_PG_USER: ${KONG_PG_USER:-postgres}
+  KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-postgres}
+services:
+               # Optional: expose Postgres on localhost for debugging
+  db:
+    image: postgres:17-alpine 
+    platform: 	linux/arm64/v8
+    restart: always
+    environment:
+      POSTGRES_DB: postgres # 🐘 Replace with your desired database name
+      POSTGRES_USER: postgres     # 👤 Replace with your desired username
+      POSTGRES_PASSWORD: postgres # 🔑 Replace with a strong password
+    volumes:
+      - db_data_1:/var/lib/postgresql/data # This will persist your database data
+    ports:
+      - "5432:5432" 
+    networks:
+      - albums-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+  kong-migrations:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations bootstrap
+    profiles: [ "database" ]
+    depends_on:
+      - db
+    environment:
+      <<: *kong-env
+    networks:
+      - albums-network
+    restart: on-failure
+  kong-migrations-up:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    command: kong migrations up
+    profiles: [ "database" ]
+    depends_on:
+      - kong-migrations
+    environment:
+      <<: *kong-env
+
+    networks:
+      - albums-network
+    restart: on-failure
+
+  kong:
+    image: "${KONG_DOCKER_TAG:-kong:latest}"
+    user: "${KONG_USER:-kong}"
+    environment:
+      <<: *kong-env
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: "${KONG_PROXY_LISTEN:-0.0.0.0:8000}"
+      KONG_ADMIN_LISTEN: "${KONG_ADMIN_LISTEN:-0.0.0.0:8001}"
+      KONG_ADMIN_GUI_LISTEN: "${KONG_ADMIN_GUI_LISTEN:-0.0.0.0:8002}"
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+      KONG_PREFIX: /usr/local/kong              # <<< make runtime prefix writable
+    volumes:
+      - kong_state_vol:/usr/local/kong
+      - kong_tmp_vol:/tmp
+      - ./config:/opt/kong
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure:5
+    security_opt:
+      - no-new-privileges
+    networks: [albums-network]
+    ports:
+      - "${KONG_INBOUND_PROXY_LISTEN:-0.0.0.0}:8000:8000/tcp"
+      - "${KONG_INBOUND_SSL_PROXY_LISTEN:-0.0.0.0}:8443:8443/tcp"
+      - "8001:8001/tcp"
+      - "8444:8444/tcp"
+      - "8002:8002/tcp"
+
+  albums:
+    build:
+      context: ../albums-rest-api
+      dockerfile: Dockerfile
+    volumes:
+      - ../albums-rest-api:/app
+    working_dir: /app
+    expose:
+      - "8080"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+
+    depends_on:
+      - db
+    networks:
+      - albums-network
+    restart: on-failure
+    command: air
+    develop:
+      watch: 
+        # rebuild image and recreate service
+        - path: ../albums-rest-api/routes
+          include: "*.go"
+          action: rebuild
+        - path: ../albums-rest-api/config
+          include: "*.go"
+          action: rebuild
+        - path: ../albums-rest-api/models
+          include: "*.go"
+          action: rebuild
+        - path: ../albums-rest-api/controllers
+          include: "*.go"
+          action: rebuild
+        - path: ../albums-rest-api/
+          include: "*.go"
+          action: rebuild
