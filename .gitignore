@@ -36,3 +36,14 @@ testdata/
 tmp/
 dist/
 build/
+
+**/node_modules
+**/dist
+**/build
+**/tmp
+**/dist
+**/build
+**/tmp
+**/dist
+**/build
+**/tmp
