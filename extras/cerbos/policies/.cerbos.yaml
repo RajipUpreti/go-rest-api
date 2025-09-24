@@ -1,0 +1,14 @@
+server:
+  httpListenAddr: ":3592"
+terms:
+  - name: "default"
+    description: "Default policy"
+    rules:
+      - resource: "*"
+        actions: "*"
+        effect: "deny"
+storage:
+  driver: "disk"
+  disk:
+    directory: /quickstart/policies
+    watchForChanges: true

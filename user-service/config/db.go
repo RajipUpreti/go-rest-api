@@ -13,7 +13,7 @@ var DB *gorm.DB
 
 func ConnectDatabase() {
 	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+		log.Println("No .env file found; continuing with existing environment")
 	}
 
 	dsn := os.Getenv("DATABASE_URL")
@@ -27,4 +27,12 @@ func ConnectDatabase() {
 	}
 
 	DB = database
+}
+
+func CloseDatabase() {
+	sqlDB, err := DB.DB()
+	if err != nil {
+		log.Fatal("Failed to get underlying database connection:", err)
+	}
+	sqlDB.Close()
 }

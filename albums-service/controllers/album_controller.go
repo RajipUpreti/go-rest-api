@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"albums-rest-api/models"
+	"albums-service/models"
 	"net/http"
 	"strconv"
 
@@ -11,6 +11,7 @@ import (
 )
 
 func GetAlbums(c *gin.Context) {
+
 	slog.Info("GetAlbums route hit")
 	artist := c.Query("artist")
 	pageStr := c.DefaultQuery("page", "1")

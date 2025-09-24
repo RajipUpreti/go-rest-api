@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"albums-rest-api/controllers"
+	"albums-service/controllers"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"albums-rest-api/config"
+	"albums-service/config"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -14,18 +14,9 @@ type Album struct {
 	Price  float64   `json:"price" binding:"required,gt=0"`
 }
 
-func SeedAlbumsIfEmpty() {
-	var count int64
-	config.DB.Model(&Album{}).Count(&count)
-	if count == 0 {
-		albums := []Album{
-			{Title: "Initial Track", Artist: "System", Price: 10.0},
-			{Title: "Reload Safe", Artist: "GORM", Price: 20.0},
-		}
-		config.DB.Create(&albums)
-	}
+func Migrate(db *gorm.DB) error {
+	return db.AutoMigrate(&Album{})
 }
-
 func GetAlbums() []Album {
 	var albums []Album
 	config.DB.Find(&albums)

@@ -1,1 +1,0 @@
-deck sync --kong-addr http://localhost:8001 --state ../config/kong-state.yaml
